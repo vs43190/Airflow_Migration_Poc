@@ -1,0 +1,17 @@
+name: Enforce Branch Protection Rules
+
+on:
+  push:
+    paths:
+      - '.github/branch-protection.yml'
+  workflow_dispatch:
+
+jobs:
+  enforce-protection:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply branch protection rules
+        uses: woopstar/branch-protection@v1
+        with:
+          token: ${{ secrets.GH_ADMIN_TOKEN }}

@@ -1,0 +1,40 @@
+# name: Trigger Harness Pipeline
+
+# on:
+#   push:
+#     branches:
+#       - dev
+#       - test
+#       - prod
+
+# jobs:
+#   trigger-harness:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Determine Harness webhook URL & Params
+#         run: |
+#           if [[ "${GITHUB_REF}" == "refs/heads/prod" ]]; then
+#             echo "WEBHOOK_URL=${{ secrets.HARNESS_WEBHOOK_PROD }}" >> $GITHUB_ENV
+#             echo "VAULT_PATH=${{ secrets.VAULT_PATH_PROD }}" >> $GITHUB_ENV
+#           elif [[ "${GITHUB_REF}" == "refs/heads/test" ]]; then
+#             echo "WEBHOOK_URL=${{ secrets.HARNESS_WEBHOOK_TEST }}" >> $GITHUB_ENV
+#             echo "VAULT_PATH=${{ secrets.VAULT_PATH_TEST }}" >> $GITHUB_ENV
+#           elif [[ "${GITHUB_REF}" == "refs/heads/dev" ]]; then
+#             echo "WEBHOOK_URL=${{ secrets.HARNESS_WEBHOOK_DEV }}" >> $GITHUB_ENV
+#             echo "VAULT_PATH=${{ secrets.VAULT_PATH_DEV }}" >> $GITHUB_ENV
+#           fi
+#           echo "EDB_ID=${{ secrets.EDB_ID }}" >> $GITHUB_ENV
+
+#       - name: Trigger Harness Pipeline webhook
+#         run: |
+#           curl -X POST \
+#             -H "Content-Type: application/json" \
+#             -d '{
+#               "source":"github",
+#               "branch":"'"${GITHUB_REF#refs/heads/}"'",
+#               "commit":"'"${GITHUB_SHA}"'",
+#               "vaultPath":"'"${VAULT_PATH}"'",
+#               "edbId":"'"${EDB_ID}"'"
+#             }' \
+#             "$WEBHOOK_URL"
