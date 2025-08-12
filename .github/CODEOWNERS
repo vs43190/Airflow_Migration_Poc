@@ -1,0 +1,2 @@
+# Require specific senior dev approval for PROD changes
+prod/ @SeniorDev1 @SeniorDev2
