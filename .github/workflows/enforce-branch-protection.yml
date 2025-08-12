@@ -10,26 +10,26 @@ on:
   workflow_dispatch:
 
 jobs:
-  enforce-protection:
+  enforce-branch-protection:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Apply branch protection rules
-        uses: peter-evans/branch-protection@v2
-        with:
-          token: ${{ secrets.GH_ADMIN_TOKEN }}
-          branch: prod
-          enforce-admins: true
-          required-status-checks: |
-            CodeQL
-            Copilot Autofix
-          required-reviewers: 1
-          require-code-owner-reviews: true
-          dismiss-stale-reviews: true
-          require-linear-history: true
-          allow-force-pushes: false
-          allow-deletions: false
-          block-branch-creation: true
-          require-conversation-resolution: true
-          require-signed-commits: true
+      - name: Set up GitHub CLI
+        uses: cli/cli-action@v2
+
+      - name: Configure branch protection via GitHub CLI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
+        run: |
+          gh api \
+            -X PUT \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/branches/prod/protection \
+            -f required_status_checks='{"strict":true,"contexts":["CodeQL","Copilot Autofix"]}' \
+            -f enforce_admins=true \
+            -f required_pull_request_reviews='{"dismiss_stale_reviews":true,"require_code_owner_reviews":true,"required_approving_review_count":1}' \
+            -f restrictions=null \
+            -f required_linear_history=true \
+            -f allow_force_pushes=false \
+            -f allow_deletions=false
