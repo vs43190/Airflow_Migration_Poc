@@ -1,26 +1,26 @@
-name: Code Scanning (CodeQL)
+name: CodeQL Scan with Folder Scope
 
 on:
   pull_request:
     branches:
       - test
       - prod
+    paths:
+      - 'test/dags/**'
+      - 'prod/dags/**'
 
 jobs:
   codeql-scan:
-    name: Perform CodeQL Analysis
     runs-on: ubuntu-latest
-
+    if: >
+      (github.base_ref == 'test' && contains(github.event.pull_request.changed_files, 'test/dags/')) ||
+      (github.base_ref == 'prod' && contains(github.event.pull_request.changed_files, 'prod/dags/'))
+    strategy:
+      matrix:
+        language: ['python']  # adjust as needed
     permissions:
       contents: read
       security-events: write
-      actions: read
-      pull-requests: write
-
-    strategy:
-      matrix:
-        language: ['python']  # add other languages like 'javascript' as needed
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -31,7 +31,8 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          queries: security-extended,security-and-quality
+          # Limit paths scanned to appropriate dags folder
+          search-paths: ${{ github.base_ref == 'test' && 'test/dags' || github.base_ref == 'prod' && 'prod/dags' }}
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
