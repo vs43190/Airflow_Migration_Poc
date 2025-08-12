@@ -2,6 +2,9 @@ name: Enforce Branch Protection Rules
 
 on:
   push:
+    branches:
+      - prod
+      - test
     paths:
       - '.github/branch-protection.yml'
   workflow_dispatch:
@@ -11,7 +14,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Apply branch protection rules
-        uses: woopstar/branch-protection@v1
+        uses: peter-evans/branch-protection@v2
         with:
           token: ${{ secrets.GH_ADMIN_TOKEN }}
+          branch: prod
+          enforce-admins: true
+          required-status-checks: |
+            CodeQL
+            Copilot Autofix
+          required-reviewers: 1
+          require-code-owner-reviews: true
+          dismiss-stale-reviews: true
+          require-linear-history: true
+          allow-force-pushes: false
+          allow-deletions: false
+          block-branch-creation: true
+          require-conversation-resolution: true
+          require-signed-commits: true
