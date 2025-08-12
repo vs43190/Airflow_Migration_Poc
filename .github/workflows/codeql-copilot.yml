@@ -1,4 +1,4 @@
-name: Code Scanning (CodeQL) and Copilot Autofix
+name: Code Scanning (CodeQL)
 
 on:
   pull_request:
@@ -7,17 +7,19 @@ on:
       - prod
 
 jobs:
-  analyze-and-autofix:
+  codeql-scan:
+    name: Perform CodeQL Analysis
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        language: ['python']  # add more languages if needed
 
     permissions:
       contents: read
       security-events: write
       actions: read
       pull-requests: write
+
+    strategy:
+      matrix:
+        language: ['python']  # add other languages like 'javascript' as needed
 
     steps:
       - name: Checkout repository
@@ -36,9 +38,3 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
-
-      - name: Run Copilot Autofix
-        if: github.event.pull_request.head.repo.fork == false
-        uses: github/copilot-autofix-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
